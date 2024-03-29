@@ -18,10 +18,9 @@ pip install -r requirements.txt
 
 ## Reproducing experiments
 
-### 0. Download data
 <details>
-  <summary>Instructions:</summary>
-  
+  <summary><h3>0. Download data</h3></summary>
+
   ####  Test data 
   We download the MrQA validation split that is used as test data: 
   NQ, SQuAD, NewsQA, TriviaQA, SearchQA, HotpotQA.
@@ -36,6 +35,21 @@ pip install -r requirements.txt
   python 0_download_data.py --dataset-type icl
   ```
   
-
 </details>  
+
+<details>
+  <summary><h3>1. Creating knowledge conflict dataset</h3></summary>
+
+  #### Stage 1: Closed-book answer gathering
+  We run the closed-book experiments using configs in <code>config/cb</code>.
+
+  Check out the config files for explanations of all the experiment parameters.
+  ```
+  python 1_gather_cb_answers.py --config config/cb/llama7b/hotpotqa.conf
+  ```
+
+  #### Stage 2: Filtering out no conflict examples
+  <code># TODO</code>
+
+</details> 
 
