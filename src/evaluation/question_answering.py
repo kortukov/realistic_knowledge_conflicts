@@ -27,11 +27,10 @@ def get_example_is_correct_fun(metric_name):
 
 class ClosedBookExampleResult:
     """Result of one example closed-book evaluation"""
-    def __init__(self, example, correct, generated_answer, cost):
+    def __init__(self, example, correct, generated_answer):
         self.example = example
         self.correct = correct
         self.generated_answer = generated_answer
-        self.cost = cost
 
     def __repr__(self):
         return f"ClosedBookExampleResult(correct={self.correct})"
@@ -42,19 +41,14 @@ def evaluate_example_closed_book(
     """Evaluate a CausalLM model on a single example from the closed book
         dataset given a custom prompt.
     """
-    if "answers" in example:
-        answers = example["answers"]
-    elif "contextual_answer" in example:
-        answers = [example["contextual_answer"]]
-    else:
-        raise ValueError(f"Example must contain fields 'answers' or 'contextual_answer'")
+    answers = example["answers"]
 
     inputs, input_text = prompt_helpers.get_input_ids_with_prompt(
         tokenizer, example, custom_prompt, device
     )
     input_len = inputs.input_ids.shape[-1]
 
-    outputs, _, cost = model_utils.generate_answer(
+    outputs = model_utils.generate_answer(
         model, tokenizer, inputs, max_tokens_to_generate=10, device=device
     )
 
@@ -63,11 +57,11 @@ def evaluate_example_closed_book(
     )
     is_correct = example_is_correct_fun(example["question"], example["context"], answers, generated_answer)
 
-    return ClosedBookExampleResult(example, is_correct, generated_answer, cost)
+    return ClosedBookExampleResult(example, is_correct, generated_answer)
 
 
 def evaluate_closed_book(
-    model, tokenizer, dataset, custom_prompt, device, log_wandb, metric_name
+    model, tokenizer, dataset, custom_prompt, device, metric_name
 ):
     """Evaluate a CausalLM model on the closed book dataset.
     Metric can be EM (Exact Match) or BEM (BERT Exact Match).
@@ -98,13 +92,6 @@ def evaluate_closed_book(
         else:
             wrong_examples.append(example)
         
-        total_cost += ex_result.cost
-
-        wandb_dict = {
-            metric_name: num_correct / (idx + 1),
-            "Total cost": total_cost,
-        }
-        log_wandb(wandb_dict, step=idx)
 
     correct_pct = num_correct / len(dataset)
     return correct_pct, correct_examples, wrong_examples
@@ -112,16 +99,14 @@ def evaluate_closed_book(
 
 class OpenBookExampleResult:
     """Result of one example open-book evaluation (with context)"""
-    def __init__(self, example, correct, f1_score, generated_answer, same_as_closed_book, f1_closed_book, activations, cb_in_ctx, cost, input_len):
+    def __init__(self, example, correct, f1_score, generated_answer, same_as_closed_book, f1_closed_book, cb_in_ctx, input_len):
         self.example = example
         self.correct = correct
         self.f1_score = f1_score
         self.generated_answer = generated_answer
         self.same_as_closed_book = same_as_closed_book
         self.f1_closed_book = f1_closed_book
-        self.activations = activations
         self.cb_in_ctx = cb_in_ctx
-        self.cost = cost
         self.input_len = input_len
 
     def __repr__(self):
@@ -136,9 +121,7 @@ def evaluate_example_openbook(
     device,
     example_is_correct_fun,
     example_is_same_fun,
-    collect_activations : str = None,
     masking_strategy : str = None,
-    print_input : bool = False,
 ) -> OpenBookExampleResult:
     """Evaluate one example open-book (with context)
 
@@ -147,8 +130,7 @@ def evaluate_example_openbook(
     - Wrong (same) - same as closed-book answer
     - Wrong (different) - different from closed-book answer
 
-    Returns activations if collect_activations is one of {'last', 'mean', 'max'}.
-    Counts how often is the closed-book answer present in the context.
+    founts how often is the closed-book answer present in the context.
     """
 
 
@@ -166,8 +148,6 @@ def evaluate_example_openbook(
     )
     input_len = inputs.input_ids.shape[-1]
 
-    if print_input:
-        print(f"Example input text:\n{input_text}")
 
     if masking_strategy:
         inputs, input_text = prompt_helpers.mask_cb_answer(tokenizer, inputs, example, masking_strategy)
@@ -177,8 +157,8 @@ def evaluate_example_openbook(
         answer=closed_book_answers[0], model_inputs=inputs, tokenizer=tokenizer,
     )
 
-    outputs, activations, cost = model_utils.generate_answer(
-        model, tokenizer, inputs, max_tokens_to_generate=10, device=device, collect_activations=collect_activations
+    outputs = model_utils.generate_answer(
+        model, tokenizer, inputs, max_tokens_to_generate=10, device=device
     )
 
     generated_answer = exact_match.get_generated_answer(
@@ -190,10 +170,9 @@ def evaluate_example_openbook(
     same_as_closed_book = example_is_same_fun(example["question"], example["context"], closed_book_answers, generated_answer)
     f1_closed_book = exact_match.compute_f1(closed_book_answers[0], generated_answer, tokenizer)
 
-
     correct = ctx_is_correct
 
-    return OpenBookExampleResult(example, correct, f1_score, generated_answer, same_as_closed_book, f1_closed_book, activations, cb_in_ctx, cost, input_len)
+    return OpenBookExampleResult(example, correct, f1_score, generated_answer, same_as_closed_book, f1_closed_book, cb_in_ctx, input_len)
 
 
 def evaluate_openbook(
@@ -202,8 +181,6 @@ def evaluate_openbook(
     dataset, 
     custom_prompt, 
     device,
-    log_wandb, 
-    collect_activations,
     metric_name, 
     sameness_metric,
     masking_strategy : str = None,
@@ -213,27 +190,22 @@ def evaluate_openbook(
     Each example has a question, context, contextual answer and a closed-book answer (given by the model 
     in previous experiments).
     
-    For each example check if model predicts the correct contextual answer, or if wrong if 
+    For each example check if model predicts the Correct update answer, or if wrong if 
     it is same as closed-book or different.
     (Assumption is that we run on the Wrong-closed-book subset).
     """
-    wrong_diff = []
-    wrong_same = []
-    correct_ctx = []
-
-    activations_wrong_diff = []
-    activations_wrong_same = []
-    activations_correct_ctx = []
+    incorrect_update = []
+    retain_parametric = []
+    correct_update = []
 
     ctx_lengths = []
 
     example_is_correct_fun = get_example_is_correct_fun(metric_name)
     example_is_same_fun = get_example_is_correct_fun(sameness_metric)
 
-    cb_in_ctx_wrong_diff, cb_in_ctx_wrong_same, cb_in_ctx_correct_ctx = 0, 0, 0
+    cb_in_ctx_incorrect_update, cb_in_ctx_retain_parametric, cb_in_ctx_correct_update = 0, 0, 0
     f1_score_total, f1_cb_total = 0, 0
 
-    total_cost = 0.0
     model.eval()
     for idx, example in enumerate(dataset):
         ex_result = evaluate_example_openbook(
@@ -244,65 +216,53 @@ def evaluate_openbook(
             device,
             example_is_correct_fun,
             example_is_same_fun,
-            collect_activations,
             masking_strategy,
-            print_input=(idx == 0),
         )
         example["openbook_answer"] = ex_result.generated_answer
 
         if ex_result.correct:
-            correct_ctx.append(example)
-            activations_correct_ctx.append(ex_result.activations)
-            cb_in_ctx_correct_ctx += ex_result.cb_in_ctx
+            correct_update.append(example)
+            cb_in_ctx_correct_update += ex_result.cb_in_ctx
         else:
             if ex_result.same_as_closed_book: 
-                wrong_same.append(example)
-                activations_wrong_same.append(ex_result.activations)
-                cb_in_ctx_wrong_same += ex_result.cb_in_ctx
+                retain_parametric.append(example)
+                cb_in_ctx_retain_parametric += ex_result.cb_in_ctx
             else:
-                wrong_diff.append(example)
-                activations_wrong_diff.append(ex_result.activations)
-                cb_in_ctx_wrong_diff += ex_result.cb_in_ctx
+                incorrect_update.append(example)
+                cb_in_ctx_incorrect_update += ex_result.cb_in_ctx
 
         f1_score_total += ex_result.f1_score
         f1_cb_total += ex_result.f1_closed_book
 
         ctx_lengths.append(ex_result.input_len)
 
-        total_cost += ex_result.cost
 
         wandb_dict = {
-            "Wrong Different": len(wrong_diff) / (idx + 1),
-            "Wrong Same": len(wrong_same) / (idx + 1),
-            "Correct Contextual": len(correct_ctx) / (idx + 1),
-            "CB in CTX Wrong Different": cb_in_ctx_wrong_diff / (len(wrong_diff) or 1),
-            "CB in CTX Wrong Same": cb_in_ctx_wrong_same / (len(wrong_same) or 1),
-            "CB in CTX Correct Contextual": cb_in_ctx_correct_ctx / (len(wrong_same) or 1),
+            "Incorrect update": len(incorrect_update) / (idx + 1),
+            "Retain parametric": len(retain_parametric) / (idx + 1),
+            "Correct update": len(correct_update) / (idx + 1),
+            "CB in CTX Incorrect update": cb_in_ctx_incorrect_update / (len(incorrect_update) or 1),
+            "CB in CTX Retain parametric": cb_in_ctx_retain_parametric / (len(retain_parametric) or 1),
+            "CB in CTX Correct update": cb_in_ctx_correct_update / (len(retain_parametric) or 1),
             "F1 Score": f1_score_total / (idx + 1),
             "F1 Score CB": f1_cb_total / (idx + 1),
-            "Total cost": total_cost,
             "Ctx len": ex_result.input_len,
         }
         log_wandb(wandb_dict, step=idx)
 
     results = {
-        "wrong_diff": wrong_diff,
-        "wrong_same": wrong_same,
-        "correct_ctx": correct_ctx,
-        "activations": {
-            "wrong_diff": activations_wrong_diff,
-            "wrong_same": activations_wrong_same,
-            "correct_ctx": activations_correct_ctx,
-        },
+        "incorrect_update": incorrect_update,
+        "retain_parametric": retain_parametric,
+        "correct_update": correct_update,
         "cb_in_ctx": {
-            "wrong_diff": cb_in_ctx_wrong_diff,
-            "wrong_same": cb_in_ctx_wrong_same,
-            "correct_ctx": cb_in_ctx_correct_ctx,
+            "incorrect_update": cb_in_ctx_incorrect_update,
+            "retain_parametric": cb_in_ctx_retain_parametric,
+            "correct_update": cb_in_ctx_correct_update,
         },
         "cb_not_in_ctx": {
-            "wrong_diff": len(wrong_diff) - cb_in_ctx_wrong_diff,
-            "wrong_same": len(wrong_same) - cb_in_ctx_wrong_same,
-            "correct_ctx": len(correct_ctx) - cb_in_ctx_correct_ctx,
+            "incorrect_update": len(incorrect_update) - cb_in_ctx_incorrect_update,
+            "retain_parametric": len(retain_parametric) - cb_in_ctx_retain_parametric,
+            "correct_update": len(correct_update) - cb_in_ctx_correct_update,
         },
         "f1_score": f1_score_total / len(dataset),
         "f1_score_cb": f1_cb_total / len(dataset),

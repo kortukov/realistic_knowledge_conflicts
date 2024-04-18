@@ -9,17 +9,12 @@ import src.file_utils as file_utils
 import src.model_utils as model_utils
 
 
-def run_closed_book_experiment(
-    exp_config: munch.Munch,
-    log_wandb: callable = file_utils.dummy_logger,
-    log_csv: callable = file_utils.dummy_logger,
-):
-    """Run closed book experiment on the DisentQA dataset
+def run_closed_book_experiment(exp_config: munch.Munch):
+    """Stage 1: Closed-book answer gathering.
 
-    The goal of this experiment is to find a subset of the dataset which the
-    model can solve only with its parametric knowledge. Further, we will use
-    this subset with counterfactual context to create the ground-truth
-    weight-dependent and document-dependant datasets.
+    We run an LLM on a dataset closed-book to probe for its parametric knowledge.
+    We also save the answers to later determine when a knowledge conflict between 
+    parametric and contextual knowledge occurs.
     """
     custom_prompt = exp_config.custom_prompt
 
@@ -51,7 +46,7 @@ def run_closed_book_experiment(
 
     validation.assert_fields_exist(
         dataset=dataset, 
-        fields=["context", "question", ["contextual_answer", "answers"]],
+        fields=["context", "question", "answers"],
     )
     validation.ensure_string_fields(
         dataset=dataset,
@@ -67,7 +62,7 @@ def run_closed_book_experiment(
         )
 
     correct_ratio, correct_examples, wrong_examples = question_answering.evaluate_closed_book(
-        model, tokenizer, dataset, custom_prompt, device, log_wandb, exp_config.metric_name
+        model, tokenizer, dataset, custom_prompt, device, exp_config.metric_name
     )
     log_metric(exp_config.metric_name, correct_ratio)
 

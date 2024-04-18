@@ -118,7 +118,7 @@ def dummy_logger(*args, **kwargs):
     pass
 
 def replace_placeholders_in_paths(exp_config: munch.Munch, path_keys: list):
-    """Replace placeholders <dataset_split>, <model_name> and <subset> in the 
+    """Replace placeholders <dataset_split>, <model_name> and <dataset> in the 
     specified path_keys with actual values from exp_config.
     
     This is useful when we want to run the same experiment on different splits
@@ -150,7 +150,7 @@ def replace_placeholders_in_paths(exp_config: munch.Munch, path_keys: list):
                 "<model_name>", exp_config.model_name
             )
 
-    if "subset" in exp_config:
+    if "dataset" in exp_config:
         for key in path_keys:
             if key not in exp_config:
                 continue
@@ -158,5 +158,5 @@ def replace_placeholders_in_paths(exp_config: munch.Munch, path_keys: list):
                 continue
 
             exp_config[key] = exp_config[key].replace(
-                "<subset>", exp_config.subset
+                "<dataset>", exp_config.dataset
             )

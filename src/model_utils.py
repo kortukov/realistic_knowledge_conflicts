@@ -98,42 +98,28 @@ def generate_one_token_with_activations(model, inputs, activations_to_collect):
 
 
 def generate_answer(
-    model, tokenizer, inputs, max_tokens_to_generate, device, collect_activations=None
+    model, tokenizer, inputs, max_tokens_to_generate, device
 ):
     """Generate answer by one token at a time.
 
-    We do this manually to be compatible with generating together with feature
-    attribution, as done in lm_saliency module.
-
-    This function also allows to output all the hidden activations of the model.
-    This allows for later linear probing of the activations.
-    activations is an np.array of shape (num_layers, batch_size(=1), hidden_size))
-
-    Return the generated tokens, activations, and cost of the generation (non-zero for API calls).
+    Return the generated tokens.
     """
-    activations = None
     
     for i in range(max_tokens_to_generate):
-        if i == 0 and collect_activations is not None:
-            # We collect activations only when generating the first token.
-            # This is because we need the representations of the input, and
-            # for the input tokens, every time we generate a new token, their
-            # representations is the same (because of self-attention looking only backwards).
-            next_token, activations = generate_one_token_with_activations(model, inputs, collect_activations)
-        else:
-            next_token= generate_one_token(model, inputs)    
+        next_token= generate_one_token(model, inputs)    
 
         if next_token == tokenizer.eos_token_id:
             break
         
-
+        # Add the generated token to the input for the next iteration
         inputs.input_ids = torch.cat(
             [inputs.input_ids, torch.tensor([[next_token]], device=device)], dim=-1
         )
+        # Add attention mask for the new token
         inputs.attention_mask = torch.cat(
             [inputs.attention_mask, torch.tensor([[1]], device=device)], dim=-1
         )
 
     # Now input ids contains both the prompt and the generated tokens
     outputs = inputs.input_ids
-    return outputs, activations, 0.0
+    return outputs
