@@ -94,12 +94,15 @@ pip install -r requirements.txt
   #### Section 4.4.1 Masking reduces the likelihood of retaining parametric answer
   We run the masking experiments using configs in <code>config/mask</code>.
 
+  The results are saved into <code>results/{model_name}/mask_{dataset}.out</code>.
   ```
   python 3_run_ob_experiment.py --config config/mask/llama7b/hotpotqa.conf
   ```
 
   #### Section 4.4.2 Adding the parametric answer to the context increases the likelihood of retaining it
   We run the experiments with adding incorrect parametric answer to context using configs in <code>config/add</code>.
+
+  The results are saved into <code>results/{model_name}/add_{dataset}.out</code>.
   ```
   python 3_run_ob_experiment.py --config config/add/llama7b/hotpotqa.conf
   ```
