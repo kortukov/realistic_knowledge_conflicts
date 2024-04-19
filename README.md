@@ -60,7 +60,7 @@ pip install -r requirements.txt
   #### Section 4.2 Studying knowledge updating behaviors under realistic knowledge conflicts
   In this experiment, we run stage 3 of the pipeline.
   We run the open-book experiments using configs in <code>config/ob</code>.
-  By default, the results are saved into <code>results/<model_name>/ob _<dataset>.out</code>.
+  By default, the results are saved into <code>results/{model_name}/ob_{dataset}.out</code>.
   
 
   ```
