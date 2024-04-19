@@ -76,7 +76,7 @@ def do_logging_based_on_results(log_metric: callable, results: dict):
     p_iu_given_not_cb_in_ctx = results["cb_not_in_ctx"]["incorrect_update"] / (num_not_cb_in_ctx or 1)
     log_metric("P(incorrect_update | not cb_in_ctx)", p_iu_given_not_cb_in_ctx)
 
-    # Test the hypothesis that p(wd) is different in the two groups
+    # Test the hypothesis that p(iu) is different in the two groups
     p_value_iu = analysis.binomial_hypothesis_test(
         m_1=results["cb_in_ctx"]["incorrect_update"],
         n_1=num_cb_in_ctx,
@@ -91,7 +91,7 @@ def do_logging_based_on_results(log_metric: callable, results: dict):
     p_rp_given_not_cb_in_ctx = results["cb_not_in_ctx"]["retain_parametric"] / (num_not_cb_in_ctx or 1)
     log_metric("P(retain_parametric | not cb_in_ctx)", p_rp_given_not_cb_in_ctx)
 
-    # Test the hypothesis that p(ws) is different in the two groups
+    # Test the hypothesis that p(rp) is different in the two groups
     p_value_rp = analysis.binomial_hypothesis_test(
         m_1=results["cb_in_ctx"]["retain_parametric"],
         n_1=num_cb_in_ctx,
@@ -106,17 +106,17 @@ def do_logging_based_on_results(log_metric: callable, results: dict):
     p_cu_given_not_cb_in_ctx = results["cb_not_in_ctx"]["correct_update"] / (num_not_cb_in_ctx or 1)
     log_metric("P(correct_update | not cb_in_ctx)", p_cu_given_not_cb_in_ctx)
 
-    # Test the hypothesis that p(cc) is different in the two groups
+    # Test the hypothesis that p(cu) is different in the two groups
     p_value_cu = analysis.binomial_hypothesis_test(
         m_1=results["cb_in_ctx"]["correct_update"],
         n_1=num_cb_in_ctx,
         m_0=results["cb_not_in_ctx"]["correct_update"],
         n_0=num_not_cb_in_ctx,
     )
-    log_metric("P-val CC", p_value_cu)
+    log_metric("P-val CU", p_value_cu)
 
 
-    # Memorization ratio = (ws / (ws + cc))
+    # Memorization ratio = (rp / (rp + cu))
     memorization_ratio = retain_parametric_pct / (retain_parametric_pct + correct_update_pct)
     log_metric("Memorization Ratio", memorization_ratio)
 

@@ -22,13 +22,15 @@ pip install -r requirements.txt
   <summary><h3>0. Download data</h3></summary>
 
   ####  Test data 
-  We download the MrQA validation split that is used as test data: 
+  We download the MrQA validation split and use it as test data: 
   NQ, SQuAD, NewsQA, TriviaQA, SearchQA, HotpotQA.
   ```
   python 0_download_data.py --dataset-type test
   ```
 
   ####  ICL data 
+  In Stage 1 of our experimental pipeline we run the models closed-book.
+  To ensure best posssible closed-book performance we use ICL demonstrations.
   For ICL we use the train split of each dataset.
   We shuffle the original data and only save 10 examples.
   ```
@@ -66,6 +68,22 @@ pip install -r requirements.txt
   ```
   python 3_run_ob_experiment.py --config config/ob/llama7b/hotpotqa.conf
   ```
+  
+  Results reported in Table 3 can be found by keys "Retain parametric", "Correct update", and "Incorrect update"
+  in the output file.
+
+  #### Section 4.3.1 Studying the differences between example categories
+  Results reported in Figure 2 can be found in the output file by keys <code>"Overall CB in Context"</code>, 
+  <code>"CB in Context Retain parametric"</code>, <code>"CB in Context Correct update"</code>, and <code>"CB in Context Incorrect update"</code>.
+
+  #### Section 4.3.2 Influence of parametric answer in context on knowledge update failures
+  Results reported in Table 4 can be found in the output file by taking the following difference:
+
+  <code>(1 - "P(correct_update | cb_in_ctx)") - (1 - "P(correct_update | not cb_in_ctx)")</code>
+
+  <code>= "P(correct_update | not cb_in_ctx)" - "P(correct_update | cb_in_ctx)"</code>
+
+  The p-values are reported in key <code>"P-val CU"</code>.
 
 </details> 
 
