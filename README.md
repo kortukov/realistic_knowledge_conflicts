@@ -87,3 +87,21 @@ pip install -r requirements.txt
 
 </details> 
 
+
+<details>
+  <summary><h3>3. Intervention experiments</h3></summary>
+
+  #### Section 4.4.1 Masking reduces the likelihood of retaining parametric answer
+  We run the masking experiments using configs in <code>config/mask</code>.
+
+  ```
+  python 3_run_ob_experiment.py --config config/mask/llama7b/hotpotqa.conf
+  ```
+
+  #### Section 4.4.2 Adding the parametric answer to the context increases the likelihood of retaining it
+  We run the experiments with adding incorrect parametric answer to context using configs in <code>config/add</code>.
+  ```
+  python 3_run_ob_experiment.py --config config/add/llama7b/hotpotqa.conf
+  ```
+
+</details>
