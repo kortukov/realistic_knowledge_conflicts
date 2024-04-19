@@ -161,7 +161,7 @@ def run_openbook_experiment(
 
     file_utils.replace_placeholders_in_paths(
         exp_config, 
-        path_keys=["dataset_path", "results_dir", "activation_dir", "icl_dataset_path"]
+        path_keys=["dataset_path", "results_dir", "activation_dir", "icl_dataset_path", "output_path"]
     )
 
     model, tokenizer, _, device = model_utils.load_model_and_tokenizer(
