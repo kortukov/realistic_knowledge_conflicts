@@ -2,9 +2,12 @@
 
 Official repository for the paper **Studying Large Language Model Behaviors Under Realistic Knowledge Conflicts**.
 
-![Experimental design](assets/setup.svg)
+We introduce a framework for studying context-memory knowledge conflicts in a realistic setup (see image below). 
 
-We introduce a framework for studying context-memory knowledge conflicts in a realistic setup (see image above). 
+<p align="center">
+  <img src="assets/setup.svg" alt="Experimental design">
+</p>
+
 We update incorrect parametric knowledge (Stages 1 and 2) using real conflicting documents (Stage 3).
 This reflects how knowledge conflicts arise in practice.
 In this realistic scenario, we find that knowledge updates fail less often than previously reported.
