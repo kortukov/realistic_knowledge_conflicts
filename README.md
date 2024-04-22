@@ -108,3 +108,21 @@ pip install -r requirements.txt
   ```
 
 </details>
+
+
+<details>
+  <summary><h3>4. ICL task adaptation</h3></summary>
+
+  #### Appendix E Task adaptation using in-context learning
+  In this experiment, we test whether in-context demonstrations can minimize the influence of the discovered parametric bias.
+
+  We run the ICL experiments using configs in <code>config/icl</code>.
+
+  The results are saved into <code>results/{model_name}/icl_{dataset}.out</code>.
+  ```
+  python 3_run_ob_experiment.py --config config/icl/llama7b/hotpotqa.conf
+  ```
+
+
+
+</details>

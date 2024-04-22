@@ -31,7 +31,7 @@ def filter_examples_by_true(config):
     print(f"Loading wrong closed book examples from {wrong_cb_path}")
     wrong_cb_data = file_utils.load_parquet_dataset(wrong_cb_path)
 
-    conflict_data, no_conflict_data = divide_dataset_into_nli_true_false(wrong_cb_data)
+    no_conflict_data, conflict_data = divide_dataset_into_nli_true_false(wrong_cb_data)
 
     conflict_path = config.conflict_examples_path.replace("<model_name>", config.model_name).replace("<dataset>", config.dataset)
     print(f"Saving examples with knowledge conflict to {conflict_path}")
