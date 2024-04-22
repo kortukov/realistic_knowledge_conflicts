@@ -9,8 +9,10 @@ In this realistic scenario, we find that knowledge updates fail less often than 
 
 ![Experimental design](assets/setup.svg)
 
-In cases where the models still fail to update their answers, we find a *parametric bias*: the incorrect parametric answer appearing in context makes the knowledge update likelier to fail.
+In cases where the models still fail to update their answers, we find a *parametric bias*: the incorrect parametric answer appearing in context makes the knowledge update likelier to fail (see below).
 This suggests that the factual parametric knowledge of LLMs can negatively influence their reading abilities and behaviors.
+
+![Example](assets/example.jpeg)
 
 We include a protocol for evaluating your RAG system w.r.t. parametric bias in this repository.
 
