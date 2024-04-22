@@ -2,12 +2,13 @@
 
 Official repository for the paper **Studying Large Language Model Behaviors Under Realistic Knowledge Conflicts**.
 
-We introduce a framework for studying context-memory knowledge conflicts in a realistic setup (see image below). 
+![Experimental design](assets/setup.svg)
+
+We introduce a framework for studying context-memory knowledge conflicts in a realistic setup (see image above). 
 We update incorrect parametric knowledge (Stages 1 and 2) using real conflicting documents (Stage 3).
 This reflects how knowledge conflicts arise in practice.
 In this realistic scenario, we find that knowledge updates fail less often than previously reported.
 
-![Experimental design](assets/setup.svg)
 
 In cases where the models still fail to update their answers, we find a **parametric bias**: the incorrect parametric answer appearing in context makes the knowledge update likelier to fail (see below).
 This suggests that the factual parametric knowledge of LLMs can negatively influence their reading abilities and behaviors.
