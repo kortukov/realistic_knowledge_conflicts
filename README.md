@@ -139,6 +139,7 @@ pip install -r requirements.txt
   ```
   python 3_run_ob_experiment.py --config config/icl/llama7b/hotpotqa.conf
   ```
+</details>
 
 
 <details>
@@ -170,6 +171,73 @@ pip install -r requirements.txt
 </details>
 
 
-## Parametric bias evaluation
+## Parametric bias susceptibility evaluation
 
-If you 
+You can use the code in this repository to test your own task-specific retrieval-augmented LLM for parametric bias susceptibility.
+
+To achieve that we will make use of the Huggingface hub.
+
+<details>
+  <summary><h3>Data and model preparation</h3></summary>
+
+  #### Prepare the dataset
+  First, you will need to [upload your dataset to the Huggingface hub](https://huggingface.co/docs/hub/en/datasets-adding) in the correct format.
+  To be compatible with our evaluation it should have <code>"question"</code>, <code>"context"</code>, and <code>answers</code> fields.
+
+  Formulate your downstream task in the QA format and supply your retrieved documents in the <code>"context"</code> fields.
+
+  #### Prepare the model
+  As with the data, choose a model from the hub or [upload your custom model to the Huggingface hub](https://huggingface.co/docs/hub/en/models-uploading).
+
+  #### Prepare the config file
+  In all config files in the <code>config/custom</code> you have to replace the lines
+  ```
+  model_name: "your_model_name"
+  ```
+  and
+  ```
+  dataset: "your_dataset_name"
+  ```
+  with the hub identifiers of your own model and dataset.
+
+</details>
+
+
+<details>
+  <summary><h3>Evaluation protocol</h3></summary>
+  The protocol is based on the intervention experiments in the paper.
+
+  #### Download the dataset
+  ```
+  python 0_download_data.py --dataset-type custom --custom-dataset-name <your_dataset_name>
+  ```
+
+  #### Gather closed-book answers of your model
+  ```
+  python 1_gather_cb_answers.py --config config/custom/cb.conf
+  ```
+
+  #### Filter out no-conflict examples
+  ```
+  python 2_filter_out_no_conflict.py --config config/custom/filter.conf 
+  ```
+
+  #### Evaluate the model open-book on your task
+  ```
+  python 3_run_ob_experiment.py --config config/custom/ob.conf
+  ```
+
+  #### Introduce the incorrect parametric answer into the context
+  ```
+  python 3_run_ob_experiment.py --config config/custom/add.conf
+  ```
+
+  #### Interpret the results
+  To see how susceptible your model is to the parametric bias we compare the results before and after adding the incorrect parametric answer to the context.
+  We compare the fields <code>"Retain parametric"</code>, <code>"Correct update"</code>, and <code>"Incorrect update"</code> in the files
+  <code>results/{your_model_name}/ob_{your_dataset_name}.out</code> and <code>results/{your_model_name}/add_{your_dataset_name}.out</code>.
+
+  If adding the incorrect answer to the context increases the prevalence of <code>"Retain parametric"</code> class, your model is susceptible to the **parametric bias**.
+
+
+</details>
