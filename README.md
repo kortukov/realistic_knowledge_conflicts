@@ -39,7 +39,7 @@ pip install -r requirements.txt
   <summary><h3>0. Download data</h3></summary>
 
   ####  Test data 
-  We download the MrQA validation split and use it as test data: 
+  We download the [MrQA](https://huggingface.co/datasets/mrqa) validation split and use it as test data: 
   NQ, SQuAD, NewsQA, TriviaQA, SearchQA, HotpotQA.
   ```
   python 0_download_data.py --dataset-type test
@@ -60,7 +60,7 @@ pip install -r requirements.txt
   <summary><h3>1. Creating knowledge conflict dataset</h3></summary>
 
   #### Stage 1: Closed-book answer gathering
-  We run the closed-book experiments using configs in <code>config/cb</code>.
+  We run the closed-book experiments using configs in [<code>config/cb</code>](https://github.com/kortukov/realistic_knowledge_conflicts/tree/main/config/cb).
 
   ```
   python 1_gather_cb_answers.py --config config/cb/llama7b/hotpotqa.conf
@@ -78,7 +78,7 @@ pip install -r requirements.txt
 
   #### Section 4.2 Studying knowledge updating behaviors under realistic knowledge conflicts
   In this experiment, we run stage 3 of the pipeline.
-  We run the open-book experiments using configs in <code>config/ob</code>.
+  We run the open-book experiments using configs in [<code>config/ob</code>](https://github.com/kortukov/realistic_knowledge_conflicts/tree/main/config/ob).
   By default, the results are saved into <code>results/{model_name}/ob_{dataset}.out</code>.
   
 
@@ -109,7 +109,7 @@ pip install -r requirements.txt
   <summary><h3>3. Intervention experiments</h3></summary>
 
   #### Section 4.4.1 Masking reduces the likelihood of retaining parametric answer
-  We run the masking experiments using configs in <code>config/mask</code>.
+  We run the masking experiments using configs in [<code>config/mask</code>](https://github.com/kortukov/realistic_knowledge_conflicts/tree/main/config/mask).
 
   The results are saved into <code>results/{model_name}/mask_{dataset}.out</code>.
   ```
@@ -117,7 +117,7 @@ pip install -r requirements.txt
   ```
 
   #### Section 4.4.2 Adding the parametric answer to the context increases the likelihood of retaining it
-  We run the experiments with adding incorrect parametric answer to context using configs in <code>config/add</code>.
+  We run the experiments with adding incorrect parametric answer to context using configs in [<code>config/add</code>](https://github.com/kortukov/realistic_knowledge_conflicts/tree/main/config/add).
 
   The results are saved into <code>results/{model_name}/add_{dataset}.out</code>.
   ```
@@ -133,7 +133,7 @@ pip install -r requirements.txt
   #### Appendix E Task adaptation using in-context learning
   In this experiment, we test whether in-context demonstrations can minimize the influence of the discovered parametric bias.
 
-  We run the ICL experiments using configs in <code>config/icl</code>.
+  We run the ICL experiments using configs in [<code>config/icl</code>](https://github.com/kortukov/realistic_knowledge_conflicts/tree/main/config/icl).
 
   The results are saved into <code>results/{model_name}/icl_{dataset}.out</code>.
   ```
@@ -159,7 +159,7 @@ pip install -r requirements.txt
 
   Then we find out the parametric (outdated) answers of the model by running the closed-book experiment.
   
-  We use configs in <code>config/freshqa</code>. 
+  We use configs in [<code>config/freshqa</code>](https://github.com/kortukov/realistic_knowledge_conflicts/tree/main/config/freshqa). 
   ```
   python 1_gather_cb_answers.py --config config/freshqa/llama7b.conf
   ```
@@ -190,7 +190,7 @@ To achieve that we will make use of the Huggingface hub.
   As with the data, choose a model from the hub or [upload your custom model to the Huggingface hub](https://huggingface.co/docs/hub/en/models-uploading).
 
   #### Prepare the config file
-  In all config files in the <code>config/custom</code> you have to replace the lines
+  In all config files in the [<code>config/custom</code>](https://github.com/kortukov/realistic_knowledge_conflicts/tree/main/config/custom) you have to replace the lines
   ```
   model_name: "your_model_name"
   ```
