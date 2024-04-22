@@ -61,7 +61,7 @@ def run_closed_book_experiment(exp_config: munch.Munch):
             custom_prompt, exp_config.icl_demo_prompt, exp_config.icl_n, exp_config.icl_dataset_path
         )
 
-    correct_ratio, correct_examples, wrong_examples = question_answering.evaluate_closed_book(
+    correct_ratio, correct_examples, wrong_examples, additional_results = question_answering.evaluate_closed_book(
         model, tokenizer, dataset, custom_prompt, device, exp_config.metric_name
     )
     log_metric(exp_config.metric_name, correct_ratio)
@@ -72,6 +72,8 @@ def run_closed_book_experiment(exp_config: munch.Munch):
     log_metric("Closed-book correct", f"{len(correct_examples)} ({correct_pct:.2f}%)")
     log_metric("Closed-book wrong", f"{len(wrong_examples)} ({100 - correct_pct:.2f}%)")
 
+    log_metric("Parametric answer in context", additional_results["cb_in_ctx_ratio"])
+    log_metric("Incorrect out of parametric in context", additional_results["incorrect_given_cb_in_ctx"])
 
     print(f"{exp_config.metric_name}: {correct_pct:.2f}%")
     print(f"{len(correct_examples)} / {len(dataset)} correct examples")

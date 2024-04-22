@@ -27,10 +27,11 @@ def get_example_is_correct_fun(metric_name):
 
 class ClosedBookExampleResult:
     """Result of one example closed-book evaluation"""
-    def __init__(self, example, correct, generated_answer):
+    def __init__(self, example, correct, generated_answer, cb_in_ctx):
         self.example = example
         self.correct = correct
         self.generated_answer = generated_answer
+        self.cb_in_ctx = cb_in_ctx
 
     def __repr__(self):
         return f"ClosedBookExampleResult(correct={self.correct})"
@@ -57,7 +58,11 @@ def evaluate_example_closed_book(
     )
     is_correct = example_is_correct_fun(example["question"], example["context"], answers, generated_answer)
 
-    return ClosedBookExampleResult(example, is_correct, generated_answer)
+    cb_in_ctx = prompt_helpers.tokenized_answer_found_in_model_inputs(
+        answer=generated_answer, model_inputs=inputs, tokenizer=tokenizer,
+    )
+
+    return ClosedBookExampleResult(example, is_correct, generated_answer, cb_in_ctx)
 
 
 def evaluate_closed_book(
@@ -75,6 +80,8 @@ def evaluate_closed_book(
     total_cost = 0.0
     correct_examples = []
     wrong_examples = []
+    cb_in_ctx_correct = []
+    cb_in_ctx_wrong = []
 
     example_is_correct_fun = get_example_is_correct_fun(metric_name)
 
@@ -89,12 +96,23 @@ def evaluate_closed_book(
         if ex_result.correct:
             num_correct += 1
             correct_examples.append(example)
+            if ex_result.cb_in_ctx:
+                cb_in_ctx_correct.append(example)
         else:
             wrong_examples.append(example)
+            if ex_result.cb_in_ctx:
+                cb_in_ctx_wrong.append(example)
+
+    num_cb_in_ctx = len(cb_in_ctx_correct) + len(cb_in_ctx_wrong)
+
+    additional_results = {
+        "cb_in_ctx_ratio": num_cb_in_ctx / len(dataset),
+        "incorrect_given_cb_in_ctx": len(cb_in_ctx_wrong) / num_cb_in_ctx,
+    }
         
 
     correct_pct = num_correct / len(dataset)
-    return correct_pct, correct_examples, wrong_examples
+    return correct_pct, correct_examples, wrong_examples, additional_results
 
 
 class OpenBookExampleResult:

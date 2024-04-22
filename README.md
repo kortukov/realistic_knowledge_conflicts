@@ -124,5 +124,32 @@ pip install -r requirements.txt
   ```
 
 
+<details>
+  <summary><h3>5. FreshQA experiment</h3></summary>
+
+  #### Appendix G Parametric answer is likely to appear in real-world documents
+  In this experiment, we move closer to a realistic RAG knowledge updating scenario and check how often does the incorrect parametric
+  answer of a model appears in real-world retrieved documents. To that end, we run models on the FreshQA dataset.
+  It contains questions, whose answers change with time. Updated truth answers are supplied together with web
+  documents containing them.
+
+  First, we download the FreshQA data for Feb 26, 2024 (as in the paper).
+
+  ```
+  python 4_download_freshqa.py
+  ```
+
+  Then we find out the parametric (outdated) answers of the model by running the closed-book experiment.
+  
+  We use configs in <code>config/freshqa</code>. 
+  ```
+  python 1_gather_cb_answers.py --config config/freshqa/llama7b.conf
+  ```
+
+  The results are saved into <code>results/{model_name}/add_{dataset}.out</code>.
+  Values reported in Table 15 can be found under the keys <code>"Parametric answer in context"</code>, and <code>"Incorrect out of parametric in context"</code>.
+
+
+
 
 </details>
