@@ -131,29 +131,30 @@ def do_logging_based_on_results(log_metric: callable, results: dict):
     log_metric(f"Ctx len avg", results["ctx_len_avg"])
     log_metric(f"Ctx len max", results["ctx_len_max"])
 
-    print(f"Incorrect update, Percentage: {len(incorrect_update)} / {num_examples}, CB in Context: {cb_in_ctx_incorrect_update_pct}")
-    print (f"Retain parametric, Percentage: {len(retain_parametric)} / {num_examples}, CB in Context: {cb_in_ctx_retain_parametric_pct}")
-    print(f"Correct update, Percentage {len(correct_update)} / {num_examples}, CB in Context: {cb_in_ctx_correct_update_pct}")
+    print(f"Incorrect update, Percentage: {len(incorrect_update) / num_examples:.2%}  ({len(incorrect_update)} / {num_examples}), CB in Context: {cb_in_ctx_incorrect_update_pct}")
+    print (f"Retain parametric, Percentage: {len(retain_parametric) / num_examples:.2%} ({len(retain_parametric)} / {num_examples}), CB in Context: {cb_in_ctx_retain_parametric_pct}")
+    print(f"Correct update, Percentage {len(correct_update) / num_examples:.2%} ({len(correct_update)} / {num_examples}), CB in Context: {cb_in_ctx_correct_update_pct}")
 
 
-def run_openbook_experiment(
-    exp_config: munch.Munch,
-):
+def run_openbook_experiment(exp_config: munch.Munch):
     """Run open-book QA experiment on a dataset that contains "context", 
     "question", "answers" and "closedbook_answer" fields.
     """
 
+    # Logging dict to store metrics
     logging_dict = {}
     def log_metric(metric_name, value):
         logging_dict[metric_name] = value
 
     custom_prompt = exp_config.custom_prompt
 
+    # Example level correctness metric with which we define correctness of model answers.
     if "metric_name" not in exp_config or not exp_config.metric_name:
         exp_config.metric_name = "EM"
     
     assert exp_config.metric_name in ["EM", "BEM"]
 
+    # Metric that identifies if open-book answer is same as closed-book answer
     if "sameness_metric" not in exp_config or not exp_config.sameness_metric:
         exp_config.sameness_metric = exp_config.metric_name
     
