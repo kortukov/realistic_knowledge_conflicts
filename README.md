@@ -1,5 +1,20 @@
 # Studying Large Language Model Behaviors Under Realistic Knowledge Conflicts
 
+Official repository for the paper **Studying Large Language Model Behaviors Under Realistic Knowledge Conflicts**.
+
+We introduce a framework for studying context-memory knowledge conflicts in a realistic setup (see image below). 
+We update incorrect parametric knowledge (Stages 1 and 2) using real conflicting documents (Stage 3).
+This reflects how knowledge conflicts arise in practice.
+In this realistic scenario, we find that knowledge updates fail less often than previously reported.
+
+![Experimental design](assets/setup.svg)
+
+In cases where the models still fail to update their answers, we find a *parametric bias*: the incorrect parametric answer appearing in context makes the knowledge update likelier to fail.
+This suggests that the factual parametric knowledge of LLMs can negatively influence their reading abilities and behaviors.
+
+We include a protocol for evaluating your RAG system w.r.t. parametric bias in this repository.
+
+
 
 ## Getting started
 
@@ -150,6 +165,9 @@ pip install -r requirements.txt
   Values reported in Table 15 can be found under the keys <code>"Parametric answer in context"</code>, and <code>"Incorrect out of parametric in context"</code>.
 
 
-
-
 </details>
+
+
+## Parametric bias evaluation
+
+If you 
