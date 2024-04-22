@@ -184,7 +184,7 @@ To achieve that we will make use of the Huggingface hub.
   First, you will need to [upload your dataset to the Huggingface hub](https://huggingface.co/docs/hub/en/datasets-adding) in the correct format.
   To be compatible with our evaluation it should have <code>"question"</code>, <code>"context"</code>, and <code>answers</code> fields.
 
-  Formulate your downstream task in the QA format and supply your retrieved documents in the <code>"context"</code> fields.
+  Formulate your downstream task in the QA format and supply your retrieved documents in the <code>"context"</code> field.
 
   #### Prepare the model
   As with the data, choose a model from the hub or [upload your custom model to the Huggingface hub](https://huggingface.co/docs/hub/en/models-uploading).
