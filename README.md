@@ -245,3 +245,18 @@ To achieve that we will make use of the Huggingface hub.
 
 
 </details>
+
+## Citing 
+
+If you use this repository, consider citing our paper:
+
+```bibtex
+@misc{kortukov2024studying,
+      title={Studying Large Language Model Behaviors Under Realistic Knowledge Conflicts}, 
+      author={Evgenii Kortukov and Alexander Rubinstein and Elisa Nguyen and Seong Joon Oh},
+      year={2024},
+      eprint={2404.16032},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG}
+}
+``` 
