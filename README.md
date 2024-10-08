@@ -1,6 +1,6 @@
-# Studying Large Language Model Behaviors Under Realistic Knowledge Conflicts
+# Studying Large Language Model Behaviors Under Context-Memory Conflicts With Real Documents
 
-Official repository for the paper **Studying Large Language Model Behaviors Under Realistic Knowledge Conflicts**.
+Official repository for the paper [**Studying Large Language Model Behaviors Under Context-Memory Conflicts With Real Documents**](https://openreview.net/forum?id=xm8zYRfrqE).
 
 We introduce a framework for studying context-memory knowledge conflicts in a realistic setup (see image below). 
 
@@ -251,12 +251,11 @@ To achieve that we will make use of the Huggingface hub.
 If you use this repository, consider citing our paper:
 
 ```bibtex
-@misc{kortukov2024studying,
-      title={Studying Large Language Model Behaviors Under Realistic Knowledge Conflicts}, 
-      author={Evgenii Kortukov and Alexander Rubinstein and Elisa Nguyen and Seong Joon Oh},
-      year={2024},
-      eprint={2404.16032},
-      archivePrefix={arXiv},
-      primaryClass={cs.LG}
+@inproceedings{kortukov2024studying,
+    title={Studying Large Language Model Behaviors Under Context-Memory Conflicts With Real Documents},
+    author={Evgenii Kortukov and Alexander Rubinstein and Elisa Nguyen and Seong Joon Oh},
+    booktitle={First Conference on Language Modeling},
+    year={2024},
+    url={https://openreview.net/forum?id=xm8zYRfrqE}
 }
 ``` 
